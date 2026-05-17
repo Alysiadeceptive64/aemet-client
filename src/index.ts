@@ -26,3 +26,8 @@ export {
   type HourlyForecastDay,
   type HourlyHumidityEntry,
 } from "./resources/prediction/index.js";
+export {
+  ObservationResource,
+  type IdemaCode,
+  type StationObservation,
+} from "./resources/observation/index.js";
