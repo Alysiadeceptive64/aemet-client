@@ -87,4 +87,36 @@ export {
   type RegionalRadarCode,
   type RadarImage,
 } from "./resources/radar/index.js";
+export {
+  SatelliteResource,
+  SATELLITE_PRODUCTS,
+  type SatelliteProduct,
+  type SatelliteImage,
+} from "./resources/satellite/index.js";
+export {
+  MapsResource,
+  SIGNIFICANT_MAP_AREAS,
+  type SignificantMapArea,
+  type MapImage,
+} from "./resources/maps/index.js";
+export {
+  AntarcticaResource,
+  ANTARCTICA_STATIONS,
+  type AntarcticaStation,
+  type AntarcticaObservation,
+} from "./resources/antarctica/index.js";
+export {
+  AirQualityResource,
+  POLLUTION_NETWORKS,
+  type PollutionNetwork,
+  type PollutionMeasurement,
+} from "./resources/airQuality/index.js";
 export { toAemetDate, parseSpanishNumber, type AemetDateInput } from "./utils/date.js";
+export {
+  haversine,
+  findNearest,
+  findNearestN,
+  parseAemetCoordinate,
+  type GeoPoint,
+  type NearestMatch,
+} from "./utils/geo.js";
