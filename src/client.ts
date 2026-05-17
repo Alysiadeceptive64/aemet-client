@@ -1,4 +1,5 @@
 import { AemetError } from "./errors.js";
+import { ClimatologyResource } from "./resources/climatology/index.js";
 import { ObservationResource } from "./resources/observation/index.js";
 import { PredictionResource } from "./resources/prediction/index.js";
 import { WarningsResource } from "./resources/warnings/index.js";
@@ -19,6 +20,7 @@ export class AemetClient {
   readonly prediction: PredictionResource;
   readonly observation: ObservationResource;
   readonly warnings: WarningsResource;
+  readonly climatology: ClimatologyResource;
 
   constructor(config: AemetClientConfig = {}) {
     const apiKey = config.apiKey ?? readEnvApiKey();
@@ -41,6 +43,7 @@ export class AemetClient {
     this.prediction = new PredictionResource(this.transport);
     this.observation = new ObservationResource(this.transport);
     this.warnings = new WarningsResource(this.transport);
+    this.climatology = new ClimatologyResource(this.transport);
   }
 }
 

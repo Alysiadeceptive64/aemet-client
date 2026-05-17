@@ -52,3 +52,11 @@ export {
   type CapAreaCode,
   type CapDocument,
 } from "./resources/warnings/index.js";
+export {
+  ClimatologyResource,
+  type ClimatologyDaily,
+  type ClimatologyMonthly,
+  type ClimatologyNormal,
+  type StationInventoryEntry,
+} from "./resources/climatology/index.js";
+export { toAemetDate, parseSpanishNumber, type AemetDateInput } from "./utils/date.js";
