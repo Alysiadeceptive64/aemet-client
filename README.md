@@ -82,6 +82,10 @@ Run `npx aemet-client --help` for the full list of subcommands.
 | `mountain` | `forecast`, `past` | `/prediccion/especifica/montaña/*` |
 | `maritime` | `highSeas`, `coastal` | `/prediccion/maritima/*` |
 | `radar` | `nationalUrl`, `regionalUrl`, `nationalImage`, `regionalImage` | `/red/radar/*` |
+| `satellite` | `productUrl`, `productImage` | `/satelites/producto/{producto}` |
+| `maps` | `analysisUrl`, `analysisImage`, `significantMapUrl`, `significantMapImage` | `/mapasygraficos/*` |
+| `antarctica` | `observations` | `/antartida/datos/...` |
+| `airQuality` | `backgroundPollution` | `/red/especial/contaminacionfondo/...` |
 
 Each method returns the parsed `datos` payload after the two-step envelope is
 resolved transparently. See [docs/endpoints.md](docs/endpoints.md) for the full
@@ -109,6 +113,43 @@ parseSpanishNumber("5,2");      // 5.2
 parseSpanishNumber("1.020,4");  // 1020.4
 parseSpanishNumber("");         // undefined
 ```
+
+### Geo helpers
+
+Find the nearest reporting station to a point, or convert AEMET's
+coordinate format to decimal degrees:
+
+```ts
+import {
+  AemetClient,
+  findNearest,
+  findNearestN,
+  haversine,
+  parseAemetCoordinate,
+} from "aemet-client";
+
+const aemet = new AemetClient({ apiKey: process.env.AEMET_API_KEY! });
+const stations = await aemet.observation.allStations();
+
+const nearest = findNearest(
+  { lat: 40.4168, lon: -3.7038 },
+  stations,
+  (s) => ({ lat: s.lat, lon: s.lon }),
+);
+console.log(`${nearest?.item.ubi} — ${nearest?.distance.toFixed(1)} km`);
+
+const top3 = findNearestN(
+  { lat: 41.3851, lon: 2.1734 },
+  stations,
+  (s) => ({ lat: s.lat, lon: s.lon }),
+  3,
+);
+
+// Convert "402411N" → 40.4030...
+const lat = parseAemetCoordinate("402411N");
+```
+
+`haversine` is exported too for arbitrary point-to-point distances.
 
 ## Error handling
 

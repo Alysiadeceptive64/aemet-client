@@ -81,6 +81,10 @@ Ejecuta `npx aemet-client --help` para la lista completa.
 | `mountain` | `forecast`, `past` | `/prediccion/especifica/montaña/*` |
 | `maritime` | `highSeas`, `coastal` | `/prediccion/maritima/*` |
 | `radar` | `nationalUrl`, `regionalUrl`, `nationalImage`, `regionalImage` | `/red/radar/*` |
+| `satellite` | `productUrl`, `productImage` | `/satelites/producto/{producto}` |
+| `maps` | `analysisUrl`, `analysisImage`, `significantMapUrl`, `significantMapImage` | `/mapasygraficos/*` |
+| `antarctica` | `observations` | `/antartida/datos/...` |
+| `airQuality` | `backgroundPollution` | `/red/especial/contaminacionfondo/...` |
 
 Cada método resuelve internamente el sobre `datos` en dos pasos y te devuelve
 directamente el payload parseado. Consulta
@@ -108,6 +112,43 @@ parseSpanishNumber("5,2");      // 5.2
 parseSpanishNumber("1.020,4");  // 1020.4
 parseSpanishNumber("");         // undefined
 ```
+
+### Helpers geo
+
+Encuentra la estación más cercana a un punto o convierte el formato AEMET de
+coordenadas a grados decimales:
+
+```ts
+import {
+  AemetClient,
+  findNearest,
+  findNearestN,
+  haversine,
+  parseAemetCoordinate,
+} from "aemet-client";
+
+const aemet = new AemetClient({ apiKey: process.env.AEMET_API_KEY! });
+const estaciones = await aemet.observation.allStations();
+
+const cercana = findNearest(
+  { lat: 40.4168, lon: -3.7038 },
+  estaciones,
+  (s) => ({ lat: s.lat, lon: s.lon }),
+);
+console.log(`${cercana?.item.ubi} — ${cercana?.distance.toFixed(1)} km`);
+
+const top3 = findNearestN(
+  { lat: 41.3851, lon: 2.1734 },
+  estaciones,
+  (s) => ({ lat: s.lat, lon: s.lon }),
+  3,
+);
+
+// Convierte "402411N" → 40.4030...
+const lat = parseAemetCoordinate("402411N");
+```
+
+`haversine` también se exporta para distancias punto a punto.
 
 ## Manejo de errores
 
