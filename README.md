@@ -151,6 +151,78 @@ const lat = parseAemetCoordinate("402411N");
 
 `haversine` is exported too for arbitrary point-to-point distances.
 
+### Embedded municipality dataset
+
+`aemet-client/data` ships 6184 Spanish municipalities (INE code, name
+and coordinates) so you can resolve coords → municipality without an
+extra service:
+
+```ts
+import {
+  findMunicipalitiesByName,
+  findMunicipalitiesByProvince,
+  findMunicipalityByCode,
+  findNearestMunicipality,
+} from "aemet-client/data";
+
+findMunicipalityByCode("28079");
+// { ineCode: "28079", name: "Madrid", lat: 40.41694, lon: -3.70333 }
+
+findNearestMunicipality({ lat: 41.0, lon: 1.0 });
+// { item: { ineCode: ..., name: "Reus", ... }, distance: 8.21 }
+
+findMunicipalitiesByName("logrono", 5);
+// returns Logroño first (accent + case insensitive)
+
+findMunicipalitiesByProvince("28");
+// every municipality whose INE code starts with 28 (Madrid province)
+```
+
+The dataset is exported through a separate subpath so the main bundle
+stays small — the JSON only loads when you import `aemet-client/data`.
+
+## Caching
+
+Wrap a `CacheAdapter` around the client to avoid repeated network
+calls (AEMET rate-limits aggressively and most data is valid for
+minutes to hours). The default in-memory adapter is included; plug
+Redis/Upstash/Cloudflare KV by implementing the same shape.
+
+```ts
+import { AemetClient, MemoryCacheAdapter } from "aemet-client";
+
+const aemet = new AemetClient({
+  apiKey: process.env.AEMET_API_KEY!,
+  cache: {
+    adapter: new MemoryCacheAdapter({ maxEntries: 500 }),
+    ttl: 300,           // seconds, applied when set() is called
+    keyPrefix: "myapp", // optional namespacing
+  },
+});
+
+await aemet.prediction.municipalDaily("28079");  // cold
+await aemet.prediction.municipalDaily("28079");  // served from cache
+
+await aemet.prediction.municipalDaily("28079", { skipCache: true });
+await aemet.prediction.municipalDaily("28079", { cacheTtl: 60 });
+```
+
+Custom adapter (Redis example):
+
+```ts
+import type { CacheAdapter } from "aemet-client";
+
+const redisAdapter: CacheAdapter = {
+  async get(key) {
+    const raw = await redis.get(key);
+    return raw ? JSON.parse(raw) : undefined;
+  },
+  async set(key, value, ttl) {
+    await redis.set(key, JSON.stringify(value), "EX", ttl ?? 300);
+  },
+};
+```
+
 ## Error handling
 
 All errors extend `AemetError`. Use `instanceof` to discriminate:

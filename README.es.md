@@ -150,6 +150,78 @@ const lat = parseAemetCoordinate("402411N");
 
 `haversine` también se exporta para distancias punto a punto.
 
+### Catálogo de municipios embebido
+
+`aemet-client/data` incluye 6184 municipios españoles (código INE,
+nombre y coordenadas) para resolver coords → municipio sin necesidad de
+otro servicio:
+
+```ts
+import {
+  findMunicipalitiesByName,
+  findMunicipalitiesByProvince,
+  findMunicipalityByCode,
+  findNearestMunicipality,
+} from "aemet-client/data";
+
+findMunicipalityByCode("28079");
+// { ineCode: "28079", name: "Madrid", lat: 40.41694, lon: -3.70333 }
+
+findNearestMunicipality({ lat: 41.0, lon: 1.0 });
+// { item: { ineCode: ..., name: "Reus", ... }, distance: 8.21 }
+
+findMunicipalitiesByName("logrono", 5);
+// devuelve Logroño primero (sin importar acentos ni mayúsculas)
+
+findMunicipalitiesByProvince("28");
+// todos los municipios cuyo código INE empieza por 28 (Madrid)
+```
+
+El dataset va por un subpath aparte para que el bundle principal no
+crezca — el JSON solo se carga cuando importas `aemet-client/data`.
+
+## Caché
+
+Conecta un `CacheAdapter` al cliente para evitar llamadas repetidas
+(AEMET tiene rate-limit fuerte y casi todos los datos son válidos de
+minutos a horas). El adapter en memoria viene incluido; conecta Redis,
+Upstash o Cloudflare KV implementando la misma interfaz.
+
+```ts
+import { AemetClient, MemoryCacheAdapter } from "aemet-client";
+
+const aemet = new AemetClient({
+  apiKey: process.env.AEMET_API_KEY!,
+  cache: {
+    adapter: new MemoryCacheAdapter({ maxEntries: 500 }),
+    ttl: 300,           // segundos
+    keyPrefix: "miapp", // opcional
+  },
+});
+
+await aemet.prediction.municipalDaily("28079");  // primera llamada
+await aemet.prediction.municipalDaily("28079");  // sirve desde caché
+
+await aemet.prediction.municipalDaily("28079", { skipCache: true });
+await aemet.prediction.municipalDaily("28079", { cacheTtl: 60 });
+```
+
+Ejemplo de adapter Redis:
+
+```ts
+import type { CacheAdapter } from "aemet-client";
+
+const redisAdapter: CacheAdapter = {
+  async get(key) {
+    const raw = await redis.get(key);
+    return raw ? JSON.parse(raw) : undefined;
+  },
+  async set(key, value, ttl) {
+    await redis.set(key, JSON.stringify(value), "EX", ttl ?? 300);
+  },
+};
+```
+
 ## Manejo de errores
 
 Todos los errores extienden `AemetError`. Usa `instanceof` para discriminar:
